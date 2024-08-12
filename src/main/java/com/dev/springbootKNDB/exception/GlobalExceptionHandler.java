@@ -1,6 +1,6 @@
 package com.dev.springbootKNDB.exception;
 
-import com.dev.springbootKNDB.dto.request.ApiResponse;
+import com.dev.springbootKNDB.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
