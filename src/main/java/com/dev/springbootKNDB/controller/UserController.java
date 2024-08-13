@@ -28,8 +28,8 @@ public class UserController {
     }
 
     @PostMapping
-    public ApiResponse<User> createU(@RequestBody @Valid UserCreationRequest request){
-        ApiResponse<User> apiResponse = new ApiResponse<>();
+    public ApiResponse<UserResponse> createU(@RequestBody @Valid UserCreationRequest request){
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.createU(request));
         return apiResponse;
     }
