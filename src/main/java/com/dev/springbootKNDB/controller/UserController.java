@@ -5,11 +5,14 @@ import com.dev.springbootKNDB.dto.request.UserCreationRequest;
 import com.dev.springbootKNDB.dto.request.UserUpdateRequest;
 import com.dev.springbootKNDB.dto.response.UserResponse;
 import com.dev.springbootKNDB.entity.User;
+import com.dev.springbootKNDB.repository.UserRepository;
 import com.dev.springbootKNDB.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,31 +21,42 @@ import java.util.List;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class UserController {
 
     UserService userService;
 
+    UserRepository userRepository;
     @GetMapping
-    public List<User> getU(){
-        return userService.getU();
+    ApiResponse<List<UserResponse>> getU(){
+        var authencation = SecurityContextHolder.getContext().getAuthentication();
+
+        log.info("Username: {}",authencation.getName());
+        authencation.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+        return ApiResponse.<List<UserResponse>>builder()
+                .result(userService.getU())
+                .build();
     }
+
 
     @PostMapping
-    public ApiResponse<UserResponse> createU(@RequestBody @Valid UserCreationRequest request){
-        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userService.createU(request));
-        return apiResponse;
+    ApiResponse<UserResponse> createU(@RequestBody @Valid UserCreationRequest request){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.createU(request))
+                .build();
     }
 
-    @GetMapping("/{id}")
-    public UserResponse oneU(@PathVariable String id){
-        return userService.oneU(id);
+    @GetMapping("/myInfo")
+    ApiResponse<UserResponse> getMyInfo() {
+
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getMyInfo())
+                .build();
     }
 
     @DeleteMapping("/{id}")
-    public String deleteU(@PathVariable String id){
-        userService.deleteU(id);
-        return "deleted";
+    public void deleteU(@PathVariable String id){
+        userRepository.deleteById(id);
     }
 
     @PutMapping("/{id}")

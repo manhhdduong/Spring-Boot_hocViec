@@ -29,5 +29,9 @@ public class User {
 
     LocalDate dob;
 
+    @ElementCollection
+    @CollectionTable(name = "uu_roles", joinColumns = @JoinColumn(name = "uu_id"))
+    @Column(name = "role")
     Set<String> roles;
+
 }

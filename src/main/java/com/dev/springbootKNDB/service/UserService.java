@@ -14,12 +14,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +32,11 @@ import java.util.List;
 @Slf4j
 public class UserService {
 
-    UserRepository userRepository;
+        UserRepository userRepository;
 
-    UserMapper userMapper;
+        UserMapper userMapper;
 
-    PasswordEncoder passwordEncoder;
+        PasswordEncoder passwordEncoder;
 
     public UserResponse createU(UserCreationRequest request){
 
@@ -44,19 +49,32 @@ public class UserService {
 
         HashSet<String> roles = new HashSet<>();
         roles.add(Role.USER.name());
-
         user.setRoles(roles);
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public List<User> getU(){
-        return userRepository.findAll();
+    public UserResponse getMyInfo(){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return userMapper.toUserResponse(user);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> getU(){
+        log.info("In method get Users");
+        return userRepository.findAll().stream().
+                map(userMapper::toUserResponse).toList();
+    }
+
+    @PostAuthorize("returnObject.username == authentication.name")
     public UserResponse oneU(String id){
+        log.info("In method get user by id");
         return userMapper.toUserResponse(userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("not Found!")));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_EXISTED)));
     }
 
     public void deleteU(String id){
