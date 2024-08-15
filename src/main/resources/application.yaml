@@ -8,6 +8,10 @@ spring:
     url: "jdbc:mysql://localhost:3306/kndb0608"
     username: root
     password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 
 jwt:
   signerKey: "xqQJf+UGrMrAYBbJDtVw+LwgosCbXZFEiXMiVniMLeJwa7Hndlg+QAIinfy+SRw8"

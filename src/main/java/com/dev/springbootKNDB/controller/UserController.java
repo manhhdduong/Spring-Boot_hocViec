@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -30,6 +31,7 @@ public class UserController {
     @GetMapping
     ApiResponse<List<UserResponse>> getU(){
         var authencation = SecurityContextHolder.getContext().getAuthentication();
+        List<User> users =new ArrayList<>();
 
         log.info("Username: {}",authencation.getName());
         authencation.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));

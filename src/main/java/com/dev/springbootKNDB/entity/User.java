@@ -7,13 +7,13 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "uu")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -29,9 +29,7 @@ public class User {
 
     LocalDate dob;
 
-    @ElementCollection
-    @CollectionTable(name = "uu_roles", joinColumns = @JoinColumn(name = "uu_id"))
-    @Column(name = "role")
-    Set<String> roles;
+    @ManyToMany
+    Set<Role> roles;
 
 }

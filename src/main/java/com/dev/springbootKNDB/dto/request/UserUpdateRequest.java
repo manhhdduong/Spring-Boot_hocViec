@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -20,5 +21,5 @@ public class UserUpdateRequest {
 
     LocalDate dob;
 
-
+    List<String> roles;
 }

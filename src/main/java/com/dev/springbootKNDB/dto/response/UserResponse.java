@@ -1,12 +1,14 @@
 package com.dev.springbootKNDB.dto.response;
 
+import com.dev.springbootKNDB.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -22,5 +24,5 @@ public class UserResponse {
 
     LocalDate dob;
 
-    Set<String> roles;
+    Set<Role> roles;
 }
