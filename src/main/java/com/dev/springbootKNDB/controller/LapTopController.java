@@ -6,6 +6,7 @@ import com.dev.springbootKNDB.entity.LapTop;
 import com.dev.springbootKNDB.service.LapTopService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,6 @@ public class LapTopController {
     public LapTopResponse createLapTop(@RequestBody @Valid LapTopRequest request){
         return lapTopService.createLapTop(request);
     }
-
     @GetMapping("/data")
     public List<LapTop> getAll(){
         return lapTopService.getAll();
@@ -38,5 +38,11 @@ public class LapTopController {
     @PutMapping("/data/{id}")
     public LapTop updateLapTop(@PathVariable String id, @RequestBody LapTopRequest request){
         return lapTopService.updateLapTop(id,request);
+    }
+
+    @GetMapping("/laptops")
+    public Page<LapTop> getAllLaptops(@RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(defaultValue = "3") int size) {
+        return lapTopService.getLapTops(page, size);
     }
 }

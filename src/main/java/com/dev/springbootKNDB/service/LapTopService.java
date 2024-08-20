@@ -8,6 +8,9 @@ import com.dev.springbootKNDB.repository.LapTopRepository;
 import lombok.Builder;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,5 +58,10 @@ public class LapTopService {
         lapTop.setDescription(request.getDescription());
 
         return lapTopRepository.save(lapTop);
+    }
+
+    public Page<LapTop> getLapTops(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return lapTopRepository.findAll(pageable);
     }
 }
