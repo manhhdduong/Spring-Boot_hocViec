@@ -23,9 +23,9 @@ public class User {
 
     String password;
 
-    String firstname;
+    String firstName;
 
-    String lastname;
+    String lastName;
 
     LocalDate dob;
 

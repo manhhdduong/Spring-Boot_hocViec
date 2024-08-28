@@ -1,7 +1,9 @@
 package com.dev.springbootKNDB.configuration;
 
+
 import com.dev.springbootKNDB.entity.User;
-import com.dev.springbootKNDB.enums.Role;
+import com.dev.springbootKNDB.entity.Role;
+import com.dev.springbootKNDB.repository.RoleRepository;
 import com.dev.springbootKNDB.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,8 @@ import java.util.HashSet;
 @Slf4j
 public class ApplicationInitConfig {
 
+    RoleRepository roleRepository;
+
     PasswordEncoder passwordEncoder;
 
     @Bean
@@ -27,13 +31,18 @@ public class ApplicationInitConfig {
         return args -> {
             if(userRepository.findByUsername("admin").isEmpty()){
 
-                var roles = new HashSet<String>();
-                roles.add(Role.ADMIN.name());
+                Role adminRole = roleRepository.save(Role.builder()
+                        .name(com.dev.springbootKNDB.enums.Role.ADMIN.name())
+                        .description("Admin role")
+                        .build());
+
+                var roles = new HashSet<Role>();
+                roles.add(adminRole);
 
                 User user = User.builder()
                         .username("admin")
                         .password(passwordEncoder.encode("admin"))
-//                        .roles(roles)
+                        .roles(roles)
                         .build();
 
                 userRepository.save(user);

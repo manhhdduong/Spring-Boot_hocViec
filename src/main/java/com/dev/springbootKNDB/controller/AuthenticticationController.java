@@ -1,6 +1,8 @@
 package com.dev.springbootKNDB.controller;
 
 import com.dev.springbootKNDB.dto.request.IntrospectRequest;
+import com.dev.springbootKNDB.dto.request.LogoutRequest;
+import com.dev.springbootKNDB.dto.request.RefeshRequest;
 import com.dev.springbootKNDB.dto.response.ApiResponse;
 import com.dev.springbootKNDB.dto.request.AuthenticationRequest;
 import com.dev.springbootKNDB.dto.response.AuthenticationResponse;
@@ -35,9 +37,21 @@ public class AuthenticticationController {
 
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse>authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
-        var result = authenticationService.introspectResponse(request);
+        var result = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
                 .build();
+    }
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/refresh")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefeshRequest request)
+            throws ParseException, JOSEException {
+        var result = authenticationService.refreshToken(request);
+        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 }

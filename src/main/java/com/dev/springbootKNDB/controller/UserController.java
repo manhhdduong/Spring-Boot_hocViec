@@ -35,6 +35,7 @@ public class UserController {
 
         log.info("Username: {}",authencation.getName());
         authencation.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getU())
                 .build();
@@ -43,6 +44,7 @@ public class UserController {
 
     @PostMapping
     ApiResponse<UserResponse> createU(@RequestBody @Valid UserCreationRequest request){
+
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createU(request))
                 .build();

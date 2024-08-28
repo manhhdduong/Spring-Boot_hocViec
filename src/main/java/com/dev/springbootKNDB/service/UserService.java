@@ -8,23 +8,22 @@ import com.dev.springbootKNDB.enums.Role;
 import com.dev.springbootKNDB.exception.AppException;
 import com.dev.springbootKNDB.exception.ErrorCode;
 import com.dev.springbootKNDB.mapper.UserMapper;
+import com.dev.springbootKNDB.repository.RoleRepository;
 import com.dev.springbootKNDB.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,20 +37,32 @@ public class UserService {
 
         PasswordEncoder passwordEncoder;
 
+        RoleRepository roleRepository;
+
     public UserResponse createU(UserCreationRequest request){
 
-        if(userRepository.existsByUsername(request.getUsername()))
-            throw new AppException(ErrorCode.USER_EXISTED);
-
         User user = userMapper.toU(request);
-
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
-//        user.setRoles(roles);
+        com.dev.springbootKNDB.entity.Role userRole = roleRepository.save(com.dev.springbootKNDB.entity.Role.builder()
+                .name(com.dev.springbootKNDB.enums.Role.USER.name())
+                .description("User role")
+                .build());
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        var roles = new HashSet<com.dev.springbootKNDB.entity.Role>();
+        roles.add(userRole);
+
+//        roleRepository.findById(Role.USER).ifPresent(roles::add);
+
+        user.setRoles(roles);
+
+        try {
+            user = userRepository.save(user);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        return userMapper.toUserResponse(user);
     }
 
     public UserResponse getMyInfo(){
@@ -81,11 +92,14 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public UserResponse updateU(String id, UserUpdateRequest request){
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("not Found!"));
+    public UserResponse updateU(String userId, UserUpdateRequest request){
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        userMapper.updateU(user, request);
+        userMapper.updateUser(user, request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        var roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
