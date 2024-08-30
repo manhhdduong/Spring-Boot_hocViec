@@ -3,14 +3,17 @@ package com.microservice.mone.service;
 import com.microservice.mone.constant.PredefinedRole;
 import com.microservice.mone.dto.request.UserCreationRequest;
 import com.microservice.mone.dto.request.UserUpdateRequest;
+import com.microservice.mone.dto.response.UserProfileResponse;
 import com.microservice.mone.dto.response.UserResponse;
 import com.microservice.mone.entity.Role;
 import com.microservice.mone.entity.User;
 import com.microservice.mone.exception.AppException;
 import com.microservice.mone.exception.ErrorCode;
+import com.microservice.mone.mapper.ProfileMapper;
 import com.microservice.mone.mapper.UserMapper;
 import com.microservice.mone.repository.RoleRepository;
 import com.microservice.mone.repository.UserRepository;
+import com.microservice.mone.repository.httpclient.ProfileClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,6 +36,10 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
+    ProfileClient profileClient;
+
+    ProfileMapper profileMapper;
+
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
 
@@ -44,7 +51,17 @@ public class UserService {
 
         user.setRoles(roles);
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        user = userRepository.save(user);
+
+        var profileRequest = profileMapper.toProfileCreationRequest(request);
+
+        profileRequest.setUserId(user.getId());
+
+        var prolifeResponse = profileClient.createProfile(profileRequest);
+
+        log.info(prolifeResponse.toString());
+
+        return userMapper.toUserResponse(user);
     }
 
     public UserResponse getMyInfo() {
